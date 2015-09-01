@@ -26,7 +26,17 @@ class Board
     BISHOPS.each { |pos| @grid[pos[0]][pos[1]] = Bishop.new(self,pos)}
     QUEENS.each { |pos| @grid[pos[0]][pos[1]] = Queen.new(self,pos)}
     KINGS.each { |pos| @grid[pos[0]][pos[1]] = King.new(self,pos)}
+    pawn_positions.each { |pos| @grid[pos[0]][pos[1]] = Pawn.new(self,pos)}
 
+  end
+
+  def pawn_positions
+    pawns = []
+    8.times do |pawn_idx|
+      pawns << [1, pawn_idx]
+      pawns << [6, pawn_idx]
+    end
+    pawns
   end
 
   def move(start_pos, end_pos)
@@ -45,11 +55,11 @@ class Board
   end
 
   def [](col, row)
-    @grid[row][col]
+    @grid[col][row]
   end
 
   def []=(col, row, val)
-    @grid[row][col] = val
+    @grid[col][row] = val
   end
 
   def in_bounds?(position)

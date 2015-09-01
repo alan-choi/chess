@@ -51,56 +51,35 @@ class SlidingPiece < Piece
   end
 
   def diagonal_moves
+    directional_moves(position, [-1, 1]) +
+    directional_moves(position, [1,-1]) +
+    directional_moves(position, [-1, -1]) +
+    directional_moves(position, [1, 1])
+  end
 
+  def directional_moves(position, steps)
+    spaces = []
+    col, row = position
+    row_step, col_step = steps
+    col += col_step
+    row += row_step
+    while @board.in_bounds?([col ,row]) && !@board[col, row].occupied?
+      spaces << [col, row]
+      col += col_step
+      row += row_step
+    end
+    spaces << [col, row] if @board.in_bounds?([col,row]) && @board[col,row].enemy?(self)
+    spaces
   end
 
   def horizontal_moves
-    col, row = @position
-    right_spaces = []
-    left_spaces = []
-
-    until col > 7 || @board[col, row].occupied?
-        right_spaces << [col, row]
-        col += 1
-    end
-
-    if col <= 7 && @board[col, row].enemy?(self)
-      right_spaces << [col, row]
-    end
-
-    col = @position[0]
-    until col < 0 || @board[col, row].occupied?
-      left_spaces <<  [col, row]
-      col -=1
-    end
-    if col >= 0 && @board[col, row].enemy?(self)
-      left_spaces << [col, row]
-    end
-
-    right_spaces + left_spaces - [@position]
+    directional_moves(position, [0,1])
+    # directional_moves(position, ADD STEP)
   end
 
   def vertical_moves
-    col, row = @position
-    top_spaces = []
-    bottom_spaces = []
-
-    until row > 7 || @board[col, row].occupied?
-      top_spaces << [col, row]
-      row += 1
-    end
-
-    top_spaces << [col, row]  if row <= 7 && @board[col, row].enemy?(self)
-
-    row = @position[1]
-    until row < 0 || @board[col, row].occupied?
-      bottom_spaces <<  [col, row]
-      row -=1
-    end
-
-    bottom_spaces << [col, row] if row >= 0 && @board[col, row].enemy?(self)
-
-    top_spaces + bottom_spaces - [@position]
+    # directional_moves(postion, ADD STEP) +
+    # directional_moves(position, ADD STEP)
   end
 end
 
@@ -180,5 +159,9 @@ class King < SteppingPiece
 end
 
 class Pawn < Piece
+
+  def to_s
+    "P "
+  end
 
 end
