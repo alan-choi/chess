@@ -22,6 +22,10 @@ class Display
   def colors_for(row, col)
     if [row, col] == @cursor_pos
       bg = :green
+    elsif @board[*@cursor_pos].valid_moves.include?([row, col])
+      bg = :yellow
+    elsif @selected_piece && @selected_piece.valid_moves.include?([row, col])
+      bg = :yellow
     elsif (row + col).odd?
       bg = :light_blue
     else
@@ -59,7 +63,7 @@ class Display
 
   def move_cursor
     c = read_char
-    y,x = @cursor_pos
+    y, x = @cursor_pos
 
     case c
     when "\e[A" # Up
@@ -72,9 +76,24 @@ class Display
       @cursor_pos = [y, (x - 1) % 8]
     when "\r"
       return :exit
-      
+    when " "
+      if @selected_piece.nil?
+        @selected_piece = @board[*@cursor_pos]
+      elsif @selected_piece.position == @cursor_pos
+        @selected_piece = nil
+      else
+        @board.move_piece(@selected_piece.position, @cursor_pos)
+        @selected_piece = nil
+      end
     end
-
+    rescue NoPieceFound
+      puts "No Piece Found"
+      @selected_piece = nil
+      retry
+    rescue InvalidMove
+      puts "Invalid Move"
+      @selected_piece = nil
+      retry
   end
 
 end

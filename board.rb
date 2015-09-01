@@ -9,9 +9,9 @@ class Board
 
 
   attr_reader :grid
-  def initialize
+  def initialize(new_board = true)
     @grid = Array.new(8) { Array.new(8) }
-    populate_board
+    populate_board if new_board
   end
 
   def populate_board
@@ -21,30 +21,19 @@ class Board
       end
     end
 
-    ROOKS.each { |pos| @grid[pos[0]][pos[1]] = Rook.new(self,pos)}
-    KNIGHTS.each { |pos| @grid[pos[0]][pos[1]] = Knight.new(self,pos)}
-    BISHOPS.each { |pos| @grid[pos[0]][pos[1]] = Bishop.new(self,pos)}
-    QUEENS.each { |pos| @grid[pos[0]][pos[1]] = Queen.new(self,pos)}
-    KINGS.each { |pos| @grid[pos[0]][pos[1]] = King.new(self,pos)}
-    pawn_positions.each { |pos| @grid[pos[0]][pos[1]] = Pawn.new(self,pos)}
+    ROOKS.each { |pos| self[*pos] = Rook.new(self,pos)}
+    KNIGHTS.each { |pos| self[*pos] = Knight.new(self,pos)}
+    BISHOPS.each { |pos| self[*pos] = Bishop.new(self,pos)}
+    QUEENS.each { |pos| self[*pos] = Queen.new(self,pos)}
+    KINGS.each { |pos| self[*pos] = King.new(self,pos)}
+    pawn_positions.each { |pos| self[*pos] = Pawn.new(self,pos)}
 
     set_colors
-
   end
 
   def set_colors
-      [0, 1].each do |i|
-        @grid[i].each do |piece|
-          piece.color = :black
-        end
-      end
-
-      [6, 7].each do |i|
-        @grid[i].each do |piece|
-          piece.color = :white
-        end
-      end
-
+    @grid[0..1].each {|row| row.map { |piece| piece.color = :black} }
+    @grid[6..7].each {|row| row.map { |piece| piece.color = :white} }
   end
 
   def pawn_positions
@@ -56,15 +45,52 @@ class Board
     pawns
   end
 
-  def move(start_pos, end_pos)
+  def check?(color)
+    king_pos = self.grid.flatten.select do |piece|
+      piece.is_a?(King) && piece.color == color
+    end.first.position
 
-    raise NoPieceFound unless self[start_pos].occupied?
+    moves = []
+    self.grid.flatten.each do |piece|
+      moves += piece.moves if piece.color != color
+    end
+
+    moves.include?(king_pos)
+  end
+
+  def opposite_color(color)
+    return :black if color == :white
+    return :white if color == :black
+  end
+
+  def dup
+    new_board = Board.new(false)
+    8.times do |row_idx|
+      8.times do |col_idx|
+        new_board[row_idx, col_idx] = self[row_idx, col_idx].dup(new_board)
+      end
+    end
+    new_board
+  end
+
+  def move_piece(start_pos, end_pos)
+
+    raise NoPieceFound unless self[*start_pos].occupied?
     raise InvalidMove unless valid_move?(start_pos, end_pos)
 
-    piece = self[start_pos]
-    self[start_pos] = EmptySpace.new(self, [row_idx, col_idx])
-    kill_piece(end_pos)
-    self[end_pos] = piece
+    move_piece!(start_pos, end_pos)
+  end
+
+  def move_piece!(start_pos, end_pos)
+    piece = self[*start_pos]
+    self[*start_pos] = EmptySpace.new(self, start_pos)
+    self[*end_pos] = piece
+    piece.position = end_pos
+    piece.first_move = false
+  end
+
+  def valid_move?(start_pos, end_pos)
+    moves = self[*start_pos].valid_moves.include?(end_pos)
   end
 
   def [](row, col)
@@ -79,5 +105,10 @@ class Board
     y, x = position
     y.between?(0, 7) && x.between?(0, 7)
   end
+end
 
+class InvalidMove < StandardError
+end
+
+class NoPieceFound < StandardError
 end

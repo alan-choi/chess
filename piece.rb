@@ -2,13 +2,14 @@ require "byebug"
 
 class Piece
   attr_reader :board, :position
-  attr_accessor :occupied, :color
+  attr_accessor :occupied, :color, :position, :first_move
 
   def initialize(board, position, color = nil)
     @occupied = true
     @board = board
     @position = position
     @color = color
+    @first_move = true
   end
 
   def occupied?
@@ -16,19 +17,32 @@ class Piece
   end
 
   def enemy?(piece)
-    if piece.color != self.color && piece.occupied? && self.occupied?
-      return true
-    else
-      false
-    end
+    piece.color != self.color && piece.occupied? && self.occupied?
   end
 
   def to_s
-
   end
 
   def moves
+    []
+  end
 
+  def dup(new_board)
+    new_piece = self.class.new(new_board, @position.dup, @color)
+    new_piece.first_move = @first_move
+    new_piece
+  end
+
+  def valid_moves
+    self.moves.reject do |move|
+      move_into_check?(move)
+    end
+  end
+
+  def move_into_check?(pos)
+    new_board = @board.dup
+    new_board.move_piece!(self.position, pos)
+    new_board.check?(self.color)
   end
 end
 
@@ -36,7 +50,6 @@ class EmptySpace < Piece
   def initialize(board, position, color = nil)
     super(board, position, color)
     @occupied = false
-
   end
 
   def to_s
@@ -49,9 +62,9 @@ class SlidingPiece < Piece
 
   def diagonal_moves
     directional_moves(position, [-1, 1]) +
-    directional_moves(position, [1,-1]) +
-    directional_moves(position, [-1, -1]) +
-    directional_moves(position, [1, 1])
+      directional_moves(position, [1,-1]) +
+      directional_moves(position, [-1, -1]) +
+      directional_moves(position, [1, 1])
   end
 
   def directional_moves(position, steps)
@@ -75,13 +88,9 @@ class SlidingPiece < Piece
   end
 
   def vertical_moves
-    directional_moves(postion, [1,0]) +
+    directional_moves(position, [1,0]) +
     directional_moves(position, [-1,0])
   end
-end
-
-class SteppingPiece < Piece
-
 end
 
 class Bishop < SlidingPiece
@@ -95,26 +104,45 @@ class Bishop < SlidingPiece
 end
 
 class Rook < SlidingPiece
-  def initialize(board, position, color = nil)
-    super(board, position, color)
-    @occupied = true
-  end
+  # def initialize(board, position, color = nil)
+  #   super(board, position, color)
+  #   @occupied = true
+  # end
 
   def to_s
     "\u2656 ".encode("utf-8")
   end
+
   def moves
     horizontal_moves + vertical_moves
   end
-
 end
 
 class Queen < SlidingPiece
   def moves
     diagonal_moves + horizontal_moves + vertical_moves
   end
+
   def to_s
     "\u2655 ".encode("utf-8")
+  end
+end
+
+class SteppingPiece < Piece
+  def moves
+    moves = []
+    self.move_steps.each do |step|
+      y, x = step
+      row, col = @position
+      pos = [row + y, col + x]
+
+      if @board.in_bounds?(pos)
+        if !@board[*pos].occupied? || @board[*pos].enemy?(self)
+          moves << pos
+        end
+      end
+    end
+    moves
   end
 end
 
@@ -122,20 +150,9 @@ class Knight < SteppingPiece
   def to_s
     "\u2658 ".encode("utf-8")
   end
-  def moves
-    y,x = @position
-    moves = []
-    (-2..2).each do |row|
-      (-2..2).each do |col|
-        position = [row + y, col + x]
-        if (row.abs + col.abs) == 3 && @board.in_bounds?(position)
-          if !@board[*position].occupied? || @board[*position].enemy?(self)
-            moves << position
-          end
-        end
-      end
-    end
-    moves
+
+  def move_steps
+    [[1,2], [-1,2], [1,-2], [-1,-2], [2,1], [-2,1], [2,-1], [-2,-1]]
   end
 end
 
@@ -144,30 +161,13 @@ class King < SteppingPiece
     "\u2654 ".encode("utf-8")
   end
 
-  def moves
-    moves = []
-    y,x = @position
-    (-1..1).each do |row|
-      (-1..1).each do |col|
-        position = [row + y, col + x]
-        if @board.in_bounds?(position)
-          if !@board[*position].occupied? || @board[*position].enemy?(self)
-            moves << position unless [row, col] == [0, 0]
-          end
-        end
-      end
-    end
-    moves
+  def move_steps
+    [[1,1], [1,0], [1,-1], [0,1], [0,-1], [-1,1], [-1,0], [-1,-1]]
   end
 end
 
 class Pawn < Piece
   attr_accessor :first_move
-
-  def initialize(board, position, color=nil)
-    super(board, position, color)
-    @first_move = true
-  end
 
   def moves
     moves = []
@@ -176,8 +176,12 @@ class Pawn < Piece
 
     moves << [row + y_step, col] unless @board[row + y_step, col].occupied?
 
-    moves << [row + y_step, col + 1] if @board[row + y_step, col + 1].enemy?(self)
-    moves << [row + y_step, col - 1] if @board[row + y_step, col - 1].enemy?(self)
+    [-1,1].each do |i|
+      pos = [row + y_step, col + i]
+      if @board.in_bounds?(pos) && @board[*pos].enemy?(self)
+        moves << pos
+      end
+    end
 
     if @first_move
       unless @board[row + y_step * 2, col].occupied? || @board[row + y_step, col].occupied?
@@ -186,7 +190,6 @@ class Pawn < Piece
     end
 
     moves
-
   end
 
   def to_s
