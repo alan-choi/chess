@@ -1,4 +1,4 @@
-#require 'colorize'
+require 'colorize'
 load './board.rb'
 
 class Display
@@ -13,26 +13,26 @@ class Display
   def build_grid
     board.grid.map.with_index do |row, row_idx|
       row.map.with_index do |piece, col_idx|
-        #color_options = colors_for(row_idx, col_idx)
-        piece.to_s#.colorize(color_options)
+        color_options = colors_for(row_idx, col_idx)
+        piece.to_s.colorize(color_options)
       end
     end
   end
 
-  def colors_for(i, j)
-    if [i, j] == @cursor_pos
+  def colors_for(row, col)
+    if [row, col] == @cursor_pos
       bg = :green
-    elsif (i + j).odd?
+    elsif (row + col).odd?
       bg = :light_blue
     else
       bg = :light_red
     end
-    {background: bg, color: :white}
+    piece_color = @board[row, col].color
+    {background: bg, color: piece_color}
   end
 
   def render
 
-    #puts 'fill the grid!'
     while (true)
       system('clear')
       build_grid.each {|row| puts row.join }
@@ -59,19 +59,20 @@ class Display
 
   def move_cursor
     c = read_char
-    x,y = @cursor_pos
+    y,x = @cursor_pos
 
     case c
     when "\e[A" # Up
-      @cursor_pos = [(x - 1) % 8, y]
+      @cursor_pos = [(y - 1) % 8, x]
     when "\e[B" # Down
-      @cursor_pos = [(x + 1) % 8, y]
+      @cursor_pos = [(y + 1) % 8, x]
     when "\e[C" # Right
-      @cursor_pos = [x, (y + 1) % 8]
+      @cursor_pos = [y, (x + 1) % 8]
     when "\e[D" # Left
-      @cursor_pos = [x, (y - 1) % 8]
+      @cursor_pos = [y, (x - 1) % 8]
     when "\r"
       return :exit
+      
     end
 
   end

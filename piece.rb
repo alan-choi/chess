@@ -1,8 +1,8 @@
 require "byebug"
 
 class Piece
-  attr_reader :board, :position, :color
-  attr_accessor :occupied
+  attr_reader :board, :position
+  attr_accessor :occupied, :color
 
   def initialize(board, position, color = nil)
     @occupied = true
@@ -46,9 +46,6 @@ class EmptySpace < Piece
 end
 
 class SlidingPiece < Piece
-  def moves #returns array of possible positions
-
-  end
 
   def diagonal_moves
     directional_moves(position, [-1, 1]) +
@@ -89,7 +86,11 @@ end
 
 class Bishop < SlidingPiece
   def to_s
-    "B "
+    "\u2657 ".encode("utf-8")
+  end
+
+  def moves
+    diagonal_moves
   end
 end
 
@@ -100,24 +101,26 @@ class Rook < SlidingPiece
   end
 
   def to_s
-    "R "
+    "\u2656 ".encode("utf-8")
   end
   def moves
-    #current position ( or what is selected)
-    #look at the current row and col for emptyspaces
+    horizontal_moves + vertical_moves
   end
 
 end
 
 class Queen < SlidingPiece
+  def moves
+    diagonal_moves + horizontal_moves + vertical_moves
+  end
   def to_s
-    "Q "
+    "\u2655 ".encode("utf-8")
   end
 end
 
 class Knight < SteppingPiece
   def to_s
-    "N "
+    "\u2658 ".encode("utf-8")
   end
   def moves
     y,x = @position
@@ -138,7 +141,7 @@ end
 
 class King < SteppingPiece
   def to_s
-    "K "
+    "\u2654 ".encode("utf-8")
   end
 
   def moves
@@ -159,9 +162,35 @@ class King < SteppingPiece
 end
 
 class Pawn < Piece
+  attr_accessor :first_move
+
+  def initialize(board, position, color=nil)
+    super(board, position, color)
+    @first_move = true
+  end
+
+  def moves
+    moves = []
+    row, col = position
+    y_step = (color == :white) ? -1 : 1
+
+    moves << [row + y_step, col] unless @board[row + y_step, col].occupied?
+
+    moves << [row + y_step, col + 1] if @board[row + y_step, col + 1].enemy?(self)
+    moves << [row + y_step, col - 1] if @board[row + y_step, col - 1].enemy?(self)
+
+    if @first_move
+      unless @board[row + y_step * 2, col].occupied? || @board[row + y_step, col].occupied?
+        moves << [row + y_step * 2, col]
+      end
+    end
+
+    moves
+
+  end
 
   def to_s
-    "P "
+    "\u2659 ".encode("utf-8")
   end
 
 end

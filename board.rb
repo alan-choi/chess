@@ -17,7 +17,7 @@ class Board
   def populate_board
     8.times do |row_idx|
       8.times do |col_idx|
-        @grid[col_idx][row_idx] = EmptySpace.new(self, [col_idx, row_idx])
+        @grid[row_idx][col_idx] = EmptySpace.new(self, [row_idx, col_idx])
       end
     end
 
@@ -27,6 +27,23 @@ class Board
     QUEENS.each { |pos| @grid[pos[0]][pos[1]] = Queen.new(self,pos)}
     KINGS.each { |pos| @grid[pos[0]][pos[1]] = King.new(self,pos)}
     pawn_positions.each { |pos| @grid[pos[0]][pos[1]] = Pawn.new(self,pos)}
+
+    set_colors
+
+  end
+
+  def set_colors
+      [0, 1].each do |i|
+        @grid[i].each do |piece|
+          piece.color = :black
+        end
+      end
+
+      [6, 7].each do |i|
+        @grid[i].each do |piece|
+          piece.color = :white
+        end
+      end
 
   end
 
@@ -50,7 +67,7 @@ class Board
     self[end_pos] = piece
   end
 
-  def [](col, row)
+  def [](row, col)
     @grid[row][col]
   end
 
