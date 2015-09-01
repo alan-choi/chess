@@ -59,27 +59,27 @@ class SlidingPiece < Piece
 
   def directional_moves(position, steps)
     spaces = []
-    col, row = position
+    row, col = position
     row_step, col_step = steps
     col += col_step
     row += row_step
-    while @board.in_bounds?([col ,row]) && !@board[col, row].occupied?
-      spaces << [col, row]
+    while @board.in_bounds?([col ,row]) && !@board[row, col].occupied?
+      spaces << [row, col]
       col += col_step
       row += row_step
     end
-    spaces << [col, row] if @board.in_bounds?([col,row]) && @board[col,row].enemy?(self)
+    spaces << [row, col] if @board.in_bounds?([row, col]) && @board[row, col].enemy?(self)
     spaces
   end
 
   def horizontal_moves
-    directional_moves(position, [0,1])
-    # directional_moves(position, ADD STEP)
+    directional_moves(position, [0,1]) +
+    directional_moves(position, [0,-1])
   end
 
   def vertical_moves
-    # directional_moves(postion, ADD STEP) +
-    # directional_moves(position, ADD STEP)
+    directional_moves(postion, [1,0]) +
+    directional_moves(position, [-1,0])
   end
 end
 

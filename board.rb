@@ -50,16 +50,12 @@ class Board
     self[end_pos] = piece
   end
 
-  def id (position)
-    [position[1], position[0]]
-  end
-
   def [](col, row)
-    @grid[col][row]
+    @grid[row][col]
   end
 
-  def []=(col, row, val)
-    @grid[col][row] = val
+  def []=(row, col, val)
+    @grid[row][col] = val
   end
 
   def in_bounds?(position)

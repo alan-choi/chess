@@ -1,4 +1,4 @@
-require 'colorize'
+#require 'colorize'
 load './board.rb'
 
 class Display
@@ -13,8 +13,8 @@ class Display
   def build_grid
     board.grid.map.with_index do |row, row_idx|
       row.map.with_index do |piece, col_idx|
-        color_options = colors_for(row_idx, col_idx)
-        piece.to_s.colorize(color_options)
+        #color_options = colors_for(row_idx, col_idx)
+        piece.to_s#.colorize(color_options)
       end
     end
   end
