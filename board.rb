@@ -1,4 +1,4 @@
-load './piece.rb'
+require './piece.rb'
 
 class Board
   ROOKS = [[0,0], [0,7], [7,0], [7,7]]
@@ -45,17 +45,36 @@ class Board
     pawns
   end
 
+  def over?
+    check_mate?(:white) || check_mate?(:black)
+  end
+
+  def check_mate?(color)
+    self.check?(color) && self.all_valid_moves(color).none?
+  end
+
   def check?(color)
     king_pos = self.grid.flatten.select do |piece|
       piece.is_a?(King) && piece.color == color
     end.first.position
 
+    all_moves(opposite_color(color)).include?(king_pos)
+  end
+
+  def all_moves(color)
     moves = []
     self.grid.flatten.each do |piece|
-      moves += piece.moves if piece.color != color
+      moves += piece.moves if piece.color == color
     end
+    moves
+  end
 
-    moves.include?(king_pos)
+  def all_valid_moves(color)
+    moves = []
+    self.grid.flatten.each do |piece|
+      moves += piece.valid_moves if piece.color == color
+    end
+    moves
   end
 
   def opposite_color(color)

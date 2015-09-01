@@ -95,7 +95,7 @@ end
 
 class Bishop < SlidingPiece
   def to_s
-    "\u2657 ".encode("utf-8")
+    "\u265D ".encode("utf-8")
   end
 
   def moves
@@ -110,7 +110,7 @@ class Rook < SlidingPiece
   # end
 
   def to_s
-    "\u2656 ".encode("utf-8")
+    "\u265C ".encode("utf-8")
   end
 
   def moves
@@ -124,7 +124,7 @@ class Queen < SlidingPiece
   end
 
   def to_s
-    "\u2655 ".encode("utf-8")
+    "\u265B ".encode("utf-8")
   end
 end
 
@@ -148,7 +148,7 @@ end
 
 class Knight < SteppingPiece
   def to_s
-    "\u2658 ".encode("utf-8")
+    "\u265E ".encode("utf-8")
   end
 
   def move_steps
@@ -158,7 +158,7 @@ end
 
 class King < SteppingPiece
   def to_s
-    "\u2654 ".encode("utf-8")
+    "\u265A ".encode("utf-8")
   end
 
   def move_steps
@@ -193,7 +193,7 @@ class Pawn < Piece
   end
 
   def to_s
-    "\u2659 ".encode("utf-8")
+    "\u265F ".encode("utf-8")
   end
 
 end

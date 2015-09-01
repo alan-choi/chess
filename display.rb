@@ -1,7 +1,10 @@
 require 'colorize'
-load './board.rb'
+require './board.rb'
+require './player.rb'
+require './game.rb'
 
 class Display
+  attr_accessor :cursor_pos, :selected_piece
   attr_reader :board
 
   def initialize(board)
@@ -35,65 +38,14 @@ class Display
     {background: bg, color: piece_color}
   end
 
-  def render
-
-    while (true)
-      system('clear')
-      build_grid.each {|row| puts row.join }
-      break if move_cursor == :exit
-    end
-
+  def render(current_player)
+    system('clear')
+    build_grid.each {|row| puts row.join }
+    puts "#{current_player.name}'s turn"
+    puts "White is in check!" if @board.check?(:white)
+    puts "Black is in check!" if @board.check?(:black)
   end
 
-  def read_char
-    STDIN.echo = false
-    STDIN.raw!
 
-    input = STDIN.getc.chr
-    if input == "\e" then
-      input << STDIN.read_nonblock(3) rescue nil
-      input << STDIN.read_nonblock(2) rescue nil
-    end
-  ensure
-    STDIN.echo = true
-    STDIN.cooked!
-
-    return input
-  end
-
-  def move_cursor
-    c = read_char
-    y, x = @cursor_pos
-
-    case c
-    when "\e[A" # Up
-      @cursor_pos = [(y - 1) % 8, x]
-    when "\e[B" # Down
-      @cursor_pos = [(y + 1) % 8, x]
-    when "\e[C" # Right
-      @cursor_pos = [y, (x + 1) % 8]
-    when "\e[D" # Left
-      @cursor_pos = [y, (x - 1) % 8]
-    when "\r"
-      return :exit
-    when " "
-      if @selected_piece.nil?
-        @selected_piece = @board[*@cursor_pos]
-      elsif @selected_piece.position == @cursor_pos
-        @selected_piece = nil
-      else
-        @board.move_piece(@selected_piece.position, @cursor_pos)
-        @selected_piece = nil
-      end
-    end
-    rescue NoPieceFound
-      puts "No Piece Found"
-      @selected_piece = nil
-      retry
-    rescue InvalidMove
-      puts "Invalid Move"
-      @selected_piece = nil
-      retry
-  end
 
 end
