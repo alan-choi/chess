@@ -1,6 +1,13 @@
 load './piece.rb'
 
 class Board
+  ROOKS = [[0,0], [0,7], [7,0], [7,7]]
+  KNIGHTS = [[0,1], [0,6], [7,1], [7,6]]
+  BISHOPS = [[0,2], [0,5], [7,2], [7,5]]
+  QUEENS = [[0,3], [7,3]]
+  KINGS = [[0,4], [7,4]]
+
+
   attr_reader :grid
   def initialize
     @grid = Array.new(8) { Array.new(8) }
@@ -8,11 +15,18 @@ class Board
   end
 
   def populate_board
-    @grid.each.with_index do |row, row_idx|
-      row.each.with_index do |col, col_idx|
-        @grid[row_idx][col_idx] = EmptySpace.new(self, [row_idx, col_idx])
+    8.times do |row_idx|
+      8.times do |col_idx|
+        @grid[col_idx][row_idx] = EmptySpace.new(self, [col_idx, row_idx])
       end
     end
+
+    ROOKS.each { |pos| @grid[pos[0]][pos[1]] = Rook.new(self,pos)}
+    KNIGHTS.each { |pos| @grid[pos[0]][pos[1]] = Knight.new(self,pos)}
+    BISHOPS.each { |pos| @grid[pos[0]][pos[1]] = Bishop.new(self,pos)}
+    QUEENS.each { |pos| @grid[pos[0]][pos[1]] = Queen.new(self,pos)}
+    KINGS.each { |pos| @grid[pos[0]][pos[1]] = King.new(self,pos)}
+
   end
 
   def move(start_pos, end_pos)
@@ -26,12 +40,21 @@ class Board
     self[end_pos] = piece
   end
 
+  def id (position)
+    [position[1], position[0]]
+  end
+
   def [](col, row)
     @grid[row][col]
   end
 
   def []=(col, row, val)
     @grid[row][col] = val
+  end
+
+  def in_bounds?(position)
+    y, x = position
+    y.between?(0, 7) && x.between?(0, 7)
   end
 
 end

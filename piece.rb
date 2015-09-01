@@ -51,7 +51,7 @@ class SlidingPiece < Piece
   end
 
   def diagonal_moves
-  
+
   end
 
   def horizontal_moves
@@ -109,9 +109,20 @@ class SteppingPiece < Piece
 end
 
 class Bishop < SlidingPiece
+  def to_s
+    "B "
+  end
 end
 
 class Rook < SlidingPiece
+  def initialize(board, position, color = nil)
+    super(board, position, color)
+    @occupied = true
+  end
+
+  def to_s
+    "R "
+  end
   def moves
     #current position ( or what is selected)
     #look at the current row and col for emptyspaces
@@ -120,10 +131,54 @@ class Rook < SlidingPiece
 end
 
 class Queen < SlidingPiece
+  def to_s
+    "Q "
+  end
 end
 
 class Knight < SteppingPiece
+  def to_s
+    "N "
+  end
+  def moves
+    y,x = @position
+    moves = []
+    (-2..2).each do |row|
+      (-2..2).each do |col|
+        position = [row + y, col + x]
+        if (row.abs + col.abs) == 3 && @board.in_bounds?(position)
+          if !@board[*position].occupied? || @board[*position].enemy?(self)
+            moves << position
+          end
+        end
+      end
+    end
+    moves
+  end
 end
 
 class King < SteppingPiece
+  def to_s
+    "K "
+  end
+
+  def moves
+    moves = []
+    y,x = @position
+    (-1..1).each do |row|
+      (-1..1).each do |col|
+        position = [row + y, col + x]
+        if @board.in_bounds?(position)
+          if !@board[*position].occupied? || @board[*position].enemy?(self)
+            moves << position unless [row, col] == [0, 0]
+          end
+        end
+      end
+    end
+    moves
+  end
+end
+
+class Pawn < Piece
+
 end
