@@ -20,13 +20,6 @@ class Piece
     piece.color != self.color && piece.occupied? && self.occupied?
   end
 
-  def to_s
-  end
-
-  def moves
-    []
-  end
-
   def dup(new_board)
     new_piece = self.class.new(new_board, @position.dup, @color)
     new_piece.first_move = @first_move
@@ -56,6 +49,9 @@ class EmptySpace < Piece
     "  "
   end
 
+  def moves
+    []
+  end
 end
 
 class SlidingPiece < Piece
@@ -82,14 +78,11 @@ class SlidingPiece < Piece
     spaces
   end
 
-  def horizontal_moves
+  def horizontal_and_vertical_moves
     directional_moves(position, [0,1]) +
-    directional_moves(position, [0,-1])
-  end
-
-  def vertical_moves
-    directional_moves(position, [1,0]) +
-    directional_moves(position, [-1,0])
+      directional_moves(position, [0,-1]) +
+      directional_moves(position, [1,0]) +
+      directional_moves(position, [-1,0])
   end
 end
 
@@ -104,23 +97,18 @@ class Bishop < SlidingPiece
 end
 
 class Rook < SlidingPiece
-  # def initialize(board, position, color = nil)
-  #   super(board, position, color)
-  #   @occupied = true
-  # end
-
   def to_s
     "\u265C ".encode("utf-8")
   end
 
   def moves
-    horizontal_moves + vertical_moves
+    horizontal_and_vertical_moves
   end
 end
 
 class Queen < SlidingPiece
   def moves
-    diagonal_moves + horizontal_moves + vertical_moves
+    diagonal_moves + horizontal_and_vertical_moves
   end
 
   def to_s
@@ -137,11 +125,10 @@ class SteppingPiece < Piece
       pos = [row + y, col + x]
 
       if @board.in_bounds?(pos)
-        if !@board[*pos].occupied? || @board[*pos].enemy?(self)
-          moves << pos
-        end
+        moves << pos if !@board[*pos].occupied? || @board[*pos].enemy?(self)
       end
     end
+
     moves
   end
 end
@@ -195,5 +182,4 @@ class Pawn < Piece
   def to_s
     "\u265F ".encode("utf-8")
   end
-
 end

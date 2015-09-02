@@ -7,7 +7,6 @@ class Board
   QUEENS = [[0,3], [7,3]]
   KINGS = [[0,4], [7,4]]
 
-
   attr_reader :grid
   def initialize(new_board = true)
     @grid = Array.new(8) { Array.new(8) }
@@ -93,7 +92,6 @@ class Board
   end
 
   def move_piece(start_pos, end_pos)
-
     raise NoPieceFound unless self[*start_pos].occupied?
     raise InvalidMove unless valid_move?(start_pos, end_pos)
 

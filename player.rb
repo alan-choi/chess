@@ -43,6 +43,8 @@ class Player
       @display.cursor_pos = [y, (x - 1) % 8]
     when "\r"
       return :exit
+    when "s"
+      return :save
     when " "
       player_selection
     end

@@ -1,3 +1,4 @@
+require 'yaml'
 require './board.rb'
 require './player.rb'
 require './display.rb'
@@ -21,6 +22,7 @@ class Game
         @display.render(@current_player)
         input = @current_player.get_input
         return if input == :exit
+        return save if input == :save
       end
       switch_players
     end
@@ -32,4 +34,11 @@ class Game
     @current_player, @other_player = @other_player, @current_player
   end
 
+  def save
+    File.write("saved_game.yaml", self.to_yaml)
+  end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  YAML.load_file(ARGV.shift).play
 end
