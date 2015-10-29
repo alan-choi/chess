@@ -64,7 +64,6 @@ class Player
 
   def player_selection
 
-
     if @display.selected_piece.nil? #if player selects empty space
       @display.selected_piece = @board[*@display.cursor_pos]
     elsif @display.selected_piece.position == @display.cursor_pos #deselects piece

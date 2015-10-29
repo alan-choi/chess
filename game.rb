@@ -1,4 +1,3 @@
-require 'yaml'
 require './board.rb'
 require './player.rb'
 require './display.rb'
@@ -40,5 +39,7 @@ class Game
 end
 
 if __FILE__ == $PROGRAM_NAME
-  YAML.load_file(ARGV.shift).play
+  game = Game.new("alan", "not alan")
+  game.play
+  # YAML.load_file(ARGV.shift).play
 end
