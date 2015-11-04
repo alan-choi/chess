@@ -24,17 +24,17 @@ class Display
 
   def colors_for(row, col)
     if [row, col] == @cursor_pos
-      bg = :green
+      bg = :blue
     elsif @selected_piece && @selected_piece.valid_moves.include?([row, col])
-      bg = :light_magenta
+      bg = :green
     elsif @selected_piece && @selected_piece.position == [row, col]
-      bg = :light_magenta
+      bg = :green
     elsif @board[*@cursor_pos].valid_moves.include?([row, col])
-      bg = :yellow
+      bg = :light_green
     elsif (row + col).odd?
-      bg = :light_blue
+      bg = :light_yellow
     else
-      bg = :red
+      bg = :light_blue
     end
     piece_color = @board[row, col].color
     {background: bg, color: piece_color}

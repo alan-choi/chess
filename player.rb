@@ -1,6 +1,8 @@
 require './display.rb'
 require './board.rb'
 require './game.rb'
+require "io/console"
+
 
 class Player
   attr_reader :name, :color
