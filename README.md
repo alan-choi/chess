@@ -16,7 +16,7 @@ A console-based, colorized, two-player chess game.
 ## All valid moves are displayed to the player
 ![valid_moves]
 ## Cannot select opponents pieces
-![opponets_piece]
+![opponents_piece]
 ## Informs player when they are in check
 ![check]
 ## Will not allow player to move into checkmate
