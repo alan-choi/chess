@@ -39,7 +39,7 @@ class Game
 end
 
 if __FILE__ == $PROGRAM_NAME
-  game = Game.new("player1", "player2")
+  game = Game.new("not Alan's", "Alan's")
   game.play
   # YAML.load_file(ARGV.shift).play
 end
